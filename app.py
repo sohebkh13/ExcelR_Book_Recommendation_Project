@@ -17,17 +17,50 @@ st.set_page_config(
 # Functions for data loading
 @st.cache_data
 def load_data():
-    users = pd.read_csv("P505/Users.csv", encoding="cp1252")
-    books = pd.read_csv("P505/Books.csv", encoding="cp1252")
-    ratings = pd.read_csv("P505/Ratings.csv", encoding="cp1252")
+    import os
     
-    # Process users data (extract country)
-    for i in users:
-        users['Country'] = users.Location.str.extract(r'\,+\s?(\w*\s?\w*)\\"*$')
-    users.drop('Location', axis=1, inplace=True)
-    users['Country'] = users['Country'].astype('str')
+    # Define possible paths for data files
+    base_paths = ["", "P505/", "../P505/"]
     
-    return users, books, ratings
+    for base_path in base_paths:
+        try:
+            # Try to load the cleaned CSV files
+            users_path = os.path.join(base_path, "Users_clean.csv")
+            books_path = os.path.join(base_path, "Books_clean.csv")
+            ratings_path = os.path.join(base_path, "Ratings_clean.csv")
+            
+            # Check if all clean files exist
+            if os.path.exists(users_path) and os.path.exists(books_path) and os.path.exists(ratings_path):
+                users = pd.read_csv(users_path, encoding="utf-8")
+                books = pd.read_csv(books_path, encoding="utf-8")
+                ratings = pd.read_csv(ratings_path, encoding="utf-8")
+                st.success(f"Successfully loaded clean datasets from {base_path}")
+                return users, books, ratings
+        except Exception as e:
+            continue
+    
+    # Fallback to original files if clean files aren't found
+    for base_path in base_paths:
+        try:
+            users = pd.read_csv(f"{base_path}Users.csv", encoding="cp1252")
+            books = pd.read_csv(f"{base_path}Books.csv", encoding="cp1252")
+            ratings = pd.read_csv(f"{base_path}Ratings.csv", encoding="cp1252")
+            
+            st.warning("Clean datasets not found. Using original datasets instead.")
+            
+            # Process users data (extract country) - only needed for original files
+            for i in users:
+                users['Country'] = users.Location.str.extract(r'\,+\s?(\w*\s?\w*)\\"*$')
+            users.drop('Location', axis=1, inplace=True)
+            users['Country'] = users['Country'].astype('str')
+            
+            return users, books, ratings
+        except Exception as e:
+            continue
+    
+    # If we get here, no files were found
+    st.error("Could not find any data files. Please check your file paths.")
+    return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
 # Function to display missing values
 def missing_values(df):
