@@ -19,7 +19,7 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     try:
-        # Directly try to load the cleaned CSV files
+        # Load only the cleaned CSV files
         users = pd.read_csv("P505/Users_clean.csv", encoding="utf-8")
         books = pd.read_csv("P505/Books_clean.csv", encoding="utf-8")
         ratings = pd.read_csv("P505/Ratings_clean.csv", encoding="utf-8")
@@ -28,26 +28,10 @@ def load_data():
         return users, books, ratings
         
     except Exception as e:
-        # Fallback to original files if clean files aren't found
-        try:
-            users = pd.read_csv("P505/Users.csv", encoding="cp1252")
-            books = pd.read_csv("P505/Books.csv", encoding="cp1252")
-            ratings = pd.read_csv("P505/Ratings.csv", encoding="cp1252")
-            
-            st.warning("Clean datasets not found. Using original datasets instead.")
-            
-            # Process users data (extract country) - only needed for original files
-            for i in users:
-                users['Country'] = users.Location.str.extract(r'\,+\s?(\w*\s?\w*)\\"*$')
-            users.drop('Location', axis=1, inplace=True)
-            users['Country'] = users['Country'].astype('str')
-            
-            return users, books, ratings
-            
-        except Exception as e:
-            # If we get here, no files were found
-            st.error(f"Could not find any data files. Error: {str(e)}")
-            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+        # If clean files aren't found, show error
+        st.error(f"Could not find clean datasets. Error: {str(e)}")
+        st.warning("Please make sure P505/Users_clean.csv, P505/Books_clean.csv, and P505/Ratings_clean.csv exist.")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
 # Function to display missing values
 def missing_values(df):
