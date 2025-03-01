@@ -429,7 +429,7 @@ def main():
                                         # Handle missing or invalid image URLs
                                         try:
                                             if pd.notna(book['Image-URL-M']) and book['Image-URL-M'].strip() != '':
-                                                st.image(book['Image-URL-M'], use_column_width=True)
+                                                st.image(book['Image-URL-M'], use_container_width=True)
                                             else:
                                                 st.write("📚 No image available")
                                         except Exception:
@@ -464,7 +464,7 @@ def main():
                                 with col_img:
                                     try:
                                         if pd.notna(book['Image-URL-M']) and book['Image-URL-M'].strip() != '':
-                                            st.image(book['Image-URL-M'], use_column_width=True)
+                                            st.image(book['Image-URL-M'], use_container_width=True)
                                         else:
                                             st.write("📚 No image available")
                                     except Exception:
@@ -500,7 +500,7 @@ def main():
                         col_img, col_info = st.columns([1, 3])
                         
                         with col_img:
-                            st.image(book['Image-URL-M'], use_column_width=True)
+                            st.image(book['Image-URL-M'], use_container_width=True)
                         
                         with col_info:
                             st.subheader(f"{i+1}. {book['Book-Title']}")
