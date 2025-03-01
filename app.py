@@ -20,7 +20,7 @@ def load_data():
     import os
     
     # Define possible paths for data files
-    base_paths = ["", "P505/", "../P505/"]
+    base_paths = ["P505/"]
     
     for base_path in base_paths:
         try:
