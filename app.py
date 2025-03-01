@@ -15,23 +15,33 @@ st.set_page_config(
 )
 
 # Functions for data loading
-# Functions for data loading
 @st.cache_data
 def load_data():
-    try:
-        # Load only the cleaned CSV files
-        users = pd.read_csv("P505/Users_clean.csv", encoding="utf-8")
-        books = pd.read_csv("P505/Books_clean.csv", encoding="utf-8")
-        ratings = pd.read_csv("P505/Ratings_clean.csv", encoding="utf-8")
-        
-        st.success("Successfully loaded clean datasets")
-        return users, books, ratings
-        
-    except Exception as e:
-        # If clean files aren't found, show error
-        st.error(f"Could not find clean datasets. Error: {str(e)}")
-        st.warning("Please make sure P505/Users_clean.csv, P505/Books_clean.csv, and P505/Ratings_clean.csv exist.")
-        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    # List of encodings to try
+    encodings = ["utf-8", "latin-1", "cp1252", "ISO-8859-1"]
+    
+    for encoding in encodings:
+        try:
+            # Try loading with current encoding
+            users = pd.read_csv("P505/Users_clean.csv", encoding=encoding)
+            books = pd.read_csv("P505/Books_clean.csv", encoding=encoding)
+            ratings = pd.read_csv("P505/Ratings_clean.csv", encoding=encoding)
+            
+            #st.success(f"Successfully loaded clean datasets with {encoding} encoding")
+            return users, books, ratings
+            
+        except UnicodeDecodeError:
+            # If this encoding doesn't work, try the next one
+            continue
+        except FileNotFoundError as e:
+            # If files aren't found, show error
+            st.error(f"Could not find clean datasets. Error: {str(e)}")
+            st.warning("Please make sure P505/Users_clean.csv, P505/Books_clean.csv, and P505/Ratings_clean.csv exist.")
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    
+    # If we've tried all encodings and none worked
+    st.error("Could not load datasets with any of the attempted encodings.")
+    return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
 # Function to display missing values
 def missing_values(df):
